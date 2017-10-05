@@ -17,11 +17,12 @@ enum DotStage{
 
 class Dot: UIView {
     var stage: DotStage = .stage1
-    let dotCornerRadius: CGFloat = 25
+    let dotCornerRadius: CGFloat = 10
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.layer.cornerRadius = dotCornerRadius
+        self.translatesAutoresizingMaskIntoConstraints = false
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -31,9 +32,12 @@ class Dot: UIView {
 
 class TypingIndicator: UIView{
     
+    let contentStackView = UIStackView.init()
     let dot1 : Dot = Dot(frame: CGRect.zero)
     let dot2 : Dot = Dot(frame: CGRect.zero)
     let dot3 : Dot = Dot(frame: CGRect.zero)
+    let indicatorHight: NSInteger = 20
+    let dotSpacing: CGFloat = 10
     
     
     var animationTimer: DispatchSourceTimer?
@@ -41,14 +45,10 @@ class TypingIndicator: UIView{
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.addSubview(dot1)
-        self.addSubview(dot2)
-        self.addSubview(dot3)
+        layoutContentStackView()
+        insertDotsIntoStackView()
         
         self.translatesAutoresizingMaskIntoConstraints = false
-        dot1.translatesAutoresizingMaskIntoConstraints = false
-        dot2.translatesAutoresizingMaskIntoConstraints = false
-        dot3.translatesAutoresizingMaskIntoConstraints = false
         
         arrangeIndicatorDots()
         
@@ -70,16 +70,45 @@ class TypingIndicator: UIView{
         super.init(coder: aDecoder)
     }
     
+    func layoutContentStackView() {
+        
+        contentStackView.translatesAutoresizingMaskIntoConstraints = false
+        contentStackView.alignment = .fill
+        contentStackView.distribution = .fillEqually
+        self.addSubview(contentStackView)
+        
+        // adding left Constraint for the view
+        let left = NSLayoutConstraint.init(item: contentStackView, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 0)
+        self.addConstraint(left)
+        
+        // adding right Constraint for the view
+        let right = NSLayoutConstraint.init(item: contentStackView, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1, constant: 0)
+        self.addConstraint(right)
+        
+        // adding top Constraint for the view
+        let top = NSLayoutConstraint.init(item: contentStackView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 0)
+        self.addConstraint(top)
+        
+        // adding bottom Constraint for the view
+        let bottom = NSLayoutConstraint.init(item: contentStackView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: 0)
+        self.addConstraint(bottom)
+    }
+    
+    func insertDotsIntoStackView() {
+        contentStackView.addArrangedSubview(dot1)
+        contentStackView.addArrangedSubview(dot2)
+        contentStackView.addArrangedSubview(dot3)
+        contentStackView.spacing = dotSpacing
+    }
+    
+     func layoutContentStackViewSubviews() {
+        
+        
+    }
+    
     func arrangeIndicatorDots() {
         
-        self.fixDimentionsSize(forView: self, withSize: CGSize.init(width: 150, height: 50))
-        self.fixDimentionsSize(forView: dot1, withSize: CGSize.init(width: 50, height: 50))
-        self.fixDimentionsSize(forView: dot2, withSize: CGSize.init(width: 50, height: 50))
-        self.fixDimentionsSize(forView: dot3, withSize: CGSize.init(width: 50, height: 50))
-        
-        self.fixDimentionsOrigin(forView: dot1, withSize: CGPoint.init(x: 0, y: 0))
-        self.fixDimentionsOrigin(forView: dot2, withSize: CGPoint.init(x: 50, y: 0))
-        self.fixDimentionsOrigin(forView: dot3, withSize: CGPoint.init(x: 100, y: 0))
+        fixDimentionsSize(forView: self, withSize: CGSize.init(width: indicatorHight*3 + Int(dotSpacing), height: indicatorHight))
     }
     
     func fixDimentionsSize(forView view: UIView, withSize size: CGSize) {
@@ -91,18 +120,6 @@ class TypingIndicator: UIView{
         // adding Width Constraint for the view
         let widthLC = NSLayoutConstraint.init(item: view, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: size.width)
         view.addConstraint(widthLC)
-    }
-    
-     func fixDimentionsOrigin(forView view: UIView, withSize origin: CGPoint) {
-        
-        // adding left Constraint for the view
-        let left = NSLayoutConstraint.init(item: view, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: origin.x)
-        self.addConstraint(left)
-        
-        // adding top Constraint for the view
-        let top = NSLayoutConstraint.init(item: view, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: origin.y)
-        self.addConstraint(top)
-        
     }
     
     func startAnimatino() {
